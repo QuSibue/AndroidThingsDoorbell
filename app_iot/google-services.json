@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "422597850999",
+    "firebase_url": "https://doorbelliot-5509a.firebaseio.com",
+    "project_id": "doorbelliot-5509a",
+    "storage_bucket": "doorbelliot-5509a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422597850999:android:f7159f1f77d7bfaf",
+        "android_client_info": {
+          "package_name": "com.nsizintsev.doorbell.iot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "422597850999-onckk0nkabs36560i2ui40dodasbg4lc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nsizintsev.doorbell.iot",
+            "certificate_hash": "5dcdbdac90bb80c30e5c253f4f7dbd965e18b249"
+          }
+        },
+        {
+          "client_id": "422597850999-7mjrpa83m4p9sjrek37freqhvsqr5au4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEWv60saXFfjoIKs19hIfBLdPXYn7FsWk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "422597850999-7mjrpa83m4p9sjrek37freqhvsqr5au4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422597850999:android:cb2000b5307c335a",
+        "android_client_info": {
+          "package_name": "com.nsizintsev.doorbell"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "422597850999-bcnfrgqnmbtn4kpaunk1ne7l1mn4k2rv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nsizintsev.doorbell",
+            "certificate_hash": "5dcdbdac90bb80c30e5c253f4f7dbd965e18b249"
+          }
+        },
+        {
+          "client_id": "422597850999-7mjrpa83m4p9sjrek37freqhvsqr5au4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEWv60saXFfjoIKs19hIfBLdPXYn7FsWk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "422597850999-7mjrpa83m4p9sjrek37freqhvsqr5au4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ButtonAndLed.iml" filepath="$PROJECT_DIR$/ButtonAndLed.iml" />
+      <module fileurl="file://D:\AndroidThings\ButtonAndLed\app\app.iml" filepath="D:\AndroidThings\ButtonAndLed\app\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app_client/app_client.iml" filepath="$PROJECT_DIR$/app_client/app_client.iml" />
+      <module fileurl="file://D:\AndroidThings\ButtonAndLed\app_client\app_doorbell.iml" filepath="D:\AndroidThings\ButtonAndLed\app_client\app_doorbell.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app_iot/app_iot.iml" filepath="$PROJECT_DIR$/app_iot/app_iot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/doorbell_common/doorbell_common.iml" filepath="$PROJECT_DIR$/doorbell_common/doorbell_common.iml" />
+    </modules>
+  </component>
+</project>

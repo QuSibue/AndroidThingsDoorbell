@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.nsizintsev.doorbell"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        main_config {
+            def propertiesFile = rootProject.file("local.properties")
+            def properties = new Properties()
+            properties.load(new FileInputStream(propertiesFile))
+
+            storeFile file(properties["store_path"])
+            storePassword = properties["store_password"]
+            keyAlias = properties["key_alias_client"]
+            keyPassword = properties["key_password_client"]
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.main_config
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.main_config
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+def SUPPORT_LIBRARY_VERSION = '27.1.0'
+
+configurations {
+    all {
+        resolutionStrategy.eachDependency {
+            DependencyResolveDetails details ->
+                def requested = details.requested
+                if (requested.group == 'com.android.support') {
+                    if (!requested.name.startsWith("multidex")) {
+                        details.useVersion SUPPORT_LIBRARY_VERSION
+                    }
+                }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project (":doorbell_common")
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+
+    implementation 'com.android.support:appcompat-v7:' + SUPPORT_LIBRARY_VERSION
+    implementation 'com.android.support:design:' + SUPPORT_LIBRARY_VERSION
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    implementation 'android.arch.lifecycle:extensions:1.1.0'
+    implementation 'android.arch.lifecycle:common-java8:1.1.0'
+
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+}
+
+apply plugin: 'com.google.gms.google-services'
