@@ -402,6 +402,10 @@ class CameraManager(private val lifecycle: Lifecycle,
                 unlockFocus()
             }
 
+            override fun onCaptureSequenceAborted(session: CameraCaptureSession?, sequenceId: Int) {
+                unlockFocus()
+            }
+
         }
 
         cameraSession!!.stopRepeating()
@@ -534,6 +538,10 @@ class CameraManager(private val lifecycle: Lifecycle,
 
         override fun onCaptureCompleted(session: CameraCaptureSession?, request: CaptureRequest?, result: TotalCaptureResult) {
             process(result)
+        }
+
+        override fun onCaptureFailed(session: CameraCaptureSession?, request: CaptureRequest?, failure: CaptureFailure?) {
+            super.onCaptureFailed(session, request, failure)
         }
 
         private fun process(result: CaptureResult) {
