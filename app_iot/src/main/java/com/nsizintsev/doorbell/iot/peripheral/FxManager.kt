@@ -11,8 +11,6 @@ import java.util.*
 class FxManager(private val activityProvider: IActivityProvider,
                 private val path: String) : LifecycleObserver {
 
-    private var timer: Timer? = null
-
     private var mediaPlayer: MediaPlayer? = null
 
     private var fd: AssetFileDescriptor? = null
@@ -25,8 +23,6 @@ class FxManager(private val activityProvider: IActivityProvider,
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart() {
-        timer = Timer()
-
         val assetFileDescriptor = activityProvider.getActivity().assets.openFd(path)
         this.fd = assetFileDescriptor
 
@@ -50,8 +46,6 @@ class FxManager(private val activityProvider: IActivityProvider,
         prepared = false
         playing = false
         repeat = false
-
-        timer?.cancel()
 
         mediaPlayer?.release()
         mediaPlayer = null
