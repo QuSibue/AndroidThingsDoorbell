@@ -1,11 +1,11 @@
-package com.nsizintsev.doorbell.iot
+package com.nsizintsev.doorbell
 
 import android.app.Application
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 
 /**
- * Created by nsizintsev on 3/13/2018.
+ * Created by nsizintsev on 3/19/2018.
  */
 
 class DoorbellApp : Application() {

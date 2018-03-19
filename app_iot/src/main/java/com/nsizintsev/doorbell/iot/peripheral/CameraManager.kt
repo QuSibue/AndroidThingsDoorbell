@@ -33,7 +33,9 @@ import com.nsizintsev.doorbell.iot.base.IPermissionCallback
 import com.nsizintsev.doorbell.iot.util.CameraUtil
 import com.nsizintsev.doorbell.iot.view.AutoFitSurfaceView
 import com.nsizintsev.doorbell.iot.view.AutoFitTextureView
+import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -72,6 +74,8 @@ class CameraManager(private val lifecycle: Lifecycle,
     private val imageAvailableCallback = ImageAvailableCallback()
 
     private val cameraCaptureCallback = CameraCaptureCallback()
+
+    private val cameraOpened = AtomicBoolean(false)
 
     private var cameraThread: HandlerThread? = null
 
@@ -164,6 +168,11 @@ class CameraManager(private val lifecycle: Lifecycle,
 
     @SuppressLint("MissingPermission")
     private fun openCamera() {
+        if (cameraOpened.get()) {
+            return
+        }
+        cameraOpened.set(true)
+
         if (!cameraLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
             if (!Thread.interrupted()) {
                 throw RuntimeException("Failed to open, lock failed")
@@ -171,6 +180,7 @@ class CameraManager(private val lifecycle: Lifecycle,
         }
 
         if (Thread.interrupted()) {
+            cameraLock.release()
             return
         }
 
@@ -271,9 +281,14 @@ class CameraManager(private val lifecycle: Lifecycle,
                 maxPreviewHeight,
                 largest)
 
+        val wait = Object()
+
         Handler(Looper.getMainLooper()).post({
             surfaceView.setAspectRatio(mPreviewSize.width, mPreviewSize.height)
+            synchronized(wait, { wait.notify() })
         })
+
+        synchronized(wait, { wait.wait() })
 
         val availableAf = characteristics[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]
         autoFocusSupported = availableAf.contains(CameraCharacteristics.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
@@ -285,26 +300,41 @@ class CameraManager(private val lifecycle: Lifecycle,
     }
 
     private fun closeCamera() {
+        if (!cameraOpened.get()) {
+            return
+        }
+
+        if (!cameraLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+            throw RuntimeException("Failed to close, lock failed")
+        }
+
         imageReader?.close()
         imageReader = null
 
         cameraSession?.close()
         cameraSession = null
 
-        if (!cameraLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
-            throw RuntimeException("Failed to close, lock failed")
-        }
         camera?.close()
         camera = null
-        cameraLock.release()
 
         cameraState = null
         previewRequestBuilder = null
         previewRequest = null
+
+        cameraLock.release()
+
+        cameraOpened.set(false)
     }
 
     fun tryOpenSession() {
-        val camera = camera!!
+        cameraLock.acquire()
+
+        val camera = camera
+
+        if (camera == null) {
+            cameraLock.release()
+            return
+        }
 
 //        val textureSurface = textureViewHolder!!.textureView.surfaceTexture
 //        val uiSurface = Surface(textureSurface)
@@ -316,8 +346,8 @@ class CameraManager(private val lifecycle: Lifecycle,
         this.previewRequestBuilder = previewRequestBuilder
 
         val surfaces = ArrayList<Surface>()
-        surfaces.add(imageReader!!.surface)
         surfaces.add(uiSurface)
+        surfaces.add(imageReader!!.surface)
 
         camera.createCaptureSession(
                 surfaces,
@@ -332,13 +362,15 @@ class CameraManager(private val lifecycle: Lifecycle,
 
                         previewRequest = previewRequestBuilder.build()
 
+                        cameraLock.release()
+
                         session?.setRepeatingRequest(previewRequestBuilder.build(),
                                 cameraCaptureCallback,
                                 cameraHandler)
                     }
 
                     override fun onConfigureFailed(session: CameraCaptureSession?) {
-
+                        cameraLock.release()
                     }
                 },
                 cameraHandler)
@@ -447,13 +479,18 @@ class CameraManager(private val lifecycle: Lifecycle,
         }
 
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+            val prevSize = previewSize
             previewSize = Size(width, height)
             isAvailable = true
-            tryOpenCamera()
+            if (prevSize != previewSize) {
+                tryOpenCamera()
+            }
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
-
+            previewSize = null
+            isAvailable = false
+            closeCamera()
         }
 
         fun release() {
@@ -544,6 +581,10 @@ class CameraManager(private val lifecycle: Lifecycle,
             super.onCaptureFailed(session, request, failure)
         }
 
+        override fun onCaptureBufferLost(session: CameraCaptureSession?, request: CaptureRequest?, target: Surface?, frameNumber: Long) {
+            super.onCaptureBufferLost(session, request, target, frameNumber)
+        }
+
         private fun process(result: CaptureResult) {
             if (cameraState == null) {
                 cameraState = STATE_PREVIEW
@@ -599,9 +640,10 @@ class CameraManager(private val lifecycle: Lifecycle,
             val byteBuffer = image.planes[0].buffer
             val byteArray = ByteArray(byteBuffer.capacity())
             byteBuffer.get(byteArray)
-
-            cameraListener.onPhotoMade(ImageData(image.width, image.height, image.format, image.cropRect, byteArray))
+            val imageData = ImageData(image.width, image.height, image.format, image.cropRect, byteArray)
             image.close()
+
+            cameraListener.onPhotoMade(imageData)
         }
 
     }

@@ -39,15 +39,24 @@ class AutoFitSurfaceView : SurfaceView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val width = View.MeasureSpec.getSize(widthMeasureSpec)
         val height = View.MeasureSpec.getSize(heightMeasureSpec)
+
+        val fWidth: Int
+        val fHeight: Int
+
         if (0 == mRatioWidth || 0 == mRatioHeight) {
-            setMeasuredDimension(width, height)
+            fWidth = width
+            fHeight = height
         } else {
             if (width < height * mRatioWidth / mRatioHeight) {
-                setMeasuredDimension(width, width * mRatioHeight / mRatioWidth)
+                fWidth = width
+                fHeight = width * mRatioHeight / mRatioWidth
             } else {
-                setMeasuredDimension(height * mRatioWidth / mRatioHeight, height)
+                fWidth = height * mRatioWidth / mRatioHeight
+                fHeight = height
             }
         }
+        setMeasuredDimension(fWidth, fHeight)
+        holder.setFixedSize(fWidth, fHeight)
     }
 
 }
