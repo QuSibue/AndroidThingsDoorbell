@@ -45,7 +45,7 @@ class DoorbellCallDbModel {
 
             val query = firestore.collection(COLLECTION_DOORBELL)
                     .whereEqualTo(DoorbellCallDbEntity.FIELD_UID, currentUser.uid)
-                    .orderBy(DoorbellCallDbEntity.FIELD_DATE, Query.Direction.ASCENDING)
+                    .orderBy(DoorbellCallDbEntity.FIELD_DATE, Query.Direction.DESCENDING)
             if (startAfter != null) {
                 val startAfterDoc = firestore.collection(COLLECTION_DOORBELL).document(startAfter.file).get()
                 query.startAfter(startAfterDoc)
@@ -80,7 +80,7 @@ class DoorbellCallDbModel {
 
                 val query = firestore.collection(COLLECTION_DOORBELL)
                         .whereEqualTo(DoorbellCallDbEntity.FIELD_UID, currentUser.uid)
-                        .orderBy(DoorbellCallDbEntity.FIELD_DATE, Query.Direction.ASCENDING)
+                        .orderBy(DoorbellCallDbEntity.FIELD_DATE, Query.Direction.DESCENDING)
 
                 val registration = query.addSnapshotListener({ snapshot, ex ->
                     if (ex != null) {

@@ -157,9 +157,7 @@ class CameraManager(private val lifecycle: Lifecycle,
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
                     && surfaceViewHolder != null
                     && surfaceViewHolder.isAvailable) {
-                cameraHandler!!.post({
-                    openCamera()
-                })
+                openCamera()
             }
         } else {
             permissionManager.requestPermissions(arrayOf(Manifest.permission.CAMERA), PR_CAMERA)
@@ -281,14 +279,7 @@ class CameraManager(private val lifecycle: Lifecycle,
                 maxPreviewHeight,
                 largest)
 
-        val wait = Object()
-
-        Handler(Looper.getMainLooper()).post({
-            surfaceView.setAspectRatio(mPreviewSize.width, mPreviewSize.height)
-            synchronized(wait, { wait.notify() })
-        })
-
-        synchronized(wait, { wait.wait() })
+        surfaceView.setAspectRatio(mPreviewSize.width, mPreviewSize.height)
 
         val availableAf = characteristics[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]
         autoFocusSupported = availableAf.contains(CameraCharacteristics.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
@@ -304,9 +295,7 @@ class CameraManager(private val lifecycle: Lifecycle,
             return
         }
 
-        if (!cameraLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
-            throw RuntimeException("Failed to close, lock failed")
-        }
+        cameraLock.acquire()
 
         imageReader?.close()
         imageReader = null
@@ -327,14 +316,7 @@ class CameraManager(private val lifecycle: Lifecycle,
     }
 
     fun tryOpenSession() {
-        cameraLock.acquire()
-
-        val camera = camera
-
-        if (camera == null) {
-            cameraLock.release()
-            return
-        }
+        val camera = camera!!
 
 //        val textureSurface = textureViewHolder!!.textureView.surfaceTexture
 //        val uiSurface = Surface(textureSurface)
@@ -353,6 +335,10 @@ class CameraManager(private val lifecycle: Lifecycle,
                 surfaces,
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession?) {
+                        if (this@CameraManager.camera == null) {
+                            return
+                        }
+
                         this@CameraManager.cameraSession = session
 
                         if (autoFocusSupported) {
@@ -362,18 +348,16 @@ class CameraManager(private val lifecycle: Lifecycle,
 
                         previewRequest = previewRequestBuilder.build()
 
-                        cameraLock.release()
-
                         session?.setRepeatingRequest(previewRequestBuilder.build(),
                                 cameraCaptureCallback,
                                 cameraHandler)
                     }
 
                     override fun onConfigureFailed(session: CameraCaptureSession?) {
-                        cameraLock.release()
+
                     }
                 },
-                cameraHandler)
+                null)
     }
 
     fun takePicture() {
@@ -442,7 +426,7 @@ class CameraManager(private val lifecycle: Lifecycle,
 
         cameraSession!!.stopRepeating()
         cameraSession!!.abortCaptures()
-        cameraSession!!.capture(captureBuilder.build(), captureCallback, cameraHandler)
+        cameraSession!!.capture(captureBuilder.build(), captureCallback, null)
     }
 
     private fun runPrecaptureSequence() {
