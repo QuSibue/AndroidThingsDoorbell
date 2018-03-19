@@ -27,6 +27,7 @@ import android.graphics.RectF
 import android.hardware.camera2.CameraManager
 import android.os.Looper
 import android.view.SurfaceHolder
+import android.view.View
 import com.nsizintsev.doorbell.common.entity.ImageData
 import com.nsizintsev.doorbell.iot.base.IActivityProvider
 import com.nsizintsev.doorbell.iot.base.IPermissionCallback
@@ -36,6 +37,7 @@ import com.nsizintsev.doorbell.iot.view.AutoFitTextureView
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.ArrayList
 
 
 /**
@@ -384,10 +386,21 @@ class CameraManager(private val lifecycle: Lifecycle,
     }
 
     private fun unlockFocus() {
-        previewRequestBuilder!!.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
-        cameraSession!!.capture(previewRequestBuilder!!.build(), cameraCaptureCallback, cameraHandler)
-        cameraState = STATE_PREVIEW
-        cameraSession!!.setRepeatingRequest(previewRequest, cameraCaptureCallback, cameraHandler)
+//        SurfaceView must be recreated for displaying, and session must be restarted
+        val lock = Object()
+        surfaceViewHolder!!.invalidateVisibility(lock)
+        synchronized(lock) {
+            lock.wait()
+        }
+        cameraSession!!.close()
+        cameraState = null
+        tryOpenSession()
+
+//        Works only with texture view
+//        previewRequestBuilder!!.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
+//        cameraSession!!.capture(previewRequestBuilder!!.build(), cameraCaptureCallback, cameraHandler)
+//        cameraState = STATE_PREVIEW
+//        cameraSession!!.setRepeatingRequest(previewRequest, cameraCaptureCallback, cameraHandler)
     }
 
     private fun captureStillPicture() {
@@ -454,6 +467,8 @@ class CameraManager(private val lifecycle: Lifecycle,
         var isAvailable = false
             private set
 
+        private val locks = ArrayList<Object>()
+
         init {
             surfaceView.holder.addCallback(this)
         }
@@ -462,19 +477,49 @@ class CameraManager(private val lifecycle: Lifecycle,
 
         }
 
-        override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            val prevSize = previewSize
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+            val prevAvailable = isAvailable
+
             previewSize = Size(width, height)
             isAvailable = true
-            if (prevSize != previewSize) {
+
+            if (!prevAvailable) {
                 tryOpenCamera()
+                previewRequestBuilder?.addTarget(holder.surface)
+            }
+
+            synchronized(locks) {
+                locks.forEach {
+                    synchronized(it) {
+                        it.notify()
+                    }
+                }
+                locks.clear()
             }
         }
 
-        override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        override fun surfaceDestroyed(holder: SurfaceHolder) {
+            previewRequestBuilder?.removeTarget(holder.surface)
+
             previewSize = null
             isAvailable = false
-            closeCamera()
+        }
+
+        fun invalidateVisibility(wait: Object) {
+            synchronized(locks) {
+                locks.add(wait)
+            }
+            invalidateVisibility()
+        }
+
+        fun invalidateVisibility() {
+            val isMain = Looper.myLooper() == Looper.getMainLooper()
+            if (isMain) {
+                surfaceView.visibility = View.GONE
+                surfaceView.visibility = View.VISIBLE
+            } else {
+                Handler(Looper.getMainLooper()).post { invalidateVisibility() }
+            }
         }
 
         fun release() {
