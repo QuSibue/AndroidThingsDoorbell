@@ -1,6 +1,12 @@
 # AndroidThingsDoorbell
 Android Things Doorbell example. IoT and Client part.
 
+What project do:
+1. When user presses a button photo is made and sent to Firebase FireStorage. Also record about call is added to Firebase FireStore;
+2. While button is pressed LED is on;
+3. While button is pressed doorbell ring sound is played cyclically.
+4. Client app gets an update from Firebase FireStore in real time and displayes records in list.
+
 To compile project:
 1. Create a keystore file for project;
 2. Create a local.properties file in root project;
@@ -15,8 +21,8 @@ key_password_client=<Your_Password_For_Client_Key>
 ```
 4. Create a project in Firebase cloud;
 5. Add 2 apps with packages to Firebase:
-* com.nsizintsev.doorbell - Client side;
-* com.nsizintsev.doorbell.iot - IoT side;
+    * com.nsizintsev.doorbell - Client side;
+    * com.nsizintsev.doorbell.iot - IoT side;
 6. Configure Firestorage with rules:
 ```Firebase
 service firebase.storage {
@@ -48,7 +54,7 @@ service cloud.firestore {
   }
 }
 ```
-  * Add index for collection `doorbells`, field `uid` `ascending`, field `date` `descending`.  
+   * Add index for collection `doorbells`, field `uid` `ascending`, field `date` `descending`.  
   
   Board configration:
   * Connect camera, display and headset to your board.
