@@ -1,7 +1,6 @@
 package com.nsizintsev.doorbell.common.entity
 
 import android.net.Uri
-import com.nsizintsev.doorbell.common.entity.firestore.DoorbellCallDbEntity
 import java.util.*
 
 /**

@@ -5,11 +5,16 @@ import android.os.Looper
 import android.os.Message
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.UploadTask
 import com.nsizintsev.doorbell.common.entity.ChangeItemRequest
 import com.nsizintsev.doorbell.common.entity.firestore.DoorbellCallDbEntity
-import io.reactivex.*
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
+import io.reactivex.ObservableOnSubscribe
+import io.reactivex.Single
 import java.util.concurrent.Semaphore
 
 /**

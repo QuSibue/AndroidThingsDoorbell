@@ -15,8 +15,8 @@ import com.nsizintsev.doorbell.iot.base.IPermissionCallback
 import com.nsizintsev.doorbell.iot.base.IPermissionManager
 import com.nsizintsev.doorbell.iot.peripheral.BtnManager
 import com.nsizintsev.doorbell.iot.peripheral.CameraManager
-import com.nsizintsev.doorbell.iot.peripheral.LedManager
 import com.nsizintsev.doorbell.iot.peripheral.FxManager
+import com.nsizintsev.doorbell.iot.peripheral.LedManager
 
 /**
  * Created by nsizintsev on 3/12/2018.

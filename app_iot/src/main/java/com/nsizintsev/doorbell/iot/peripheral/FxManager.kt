@@ -6,7 +6,6 @@ import android.arch.lifecycle.OnLifecycleEvent
 import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import com.nsizintsev.doorbell.iot.base.IActivityProvider
-import java.util.*
 
 class FxManager(private val activityProvider: IActivityProvider,
                 private val path: String) : LifecycleObserver {
