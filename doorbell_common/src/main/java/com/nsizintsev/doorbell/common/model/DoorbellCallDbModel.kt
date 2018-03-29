@@ -116,11 +116,7 @@ class DoorbellCallDbModel {
                 })
 
                 Looper.prepare()
-                handler = object : Handler() {
-                    override fun handleMessage(msg: Message?) {
-                        msg?.callback?.run()
-                    }
-                }
+                handler = Handler()
                 Looper.loop()
             }
         })
