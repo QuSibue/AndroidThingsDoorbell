@@ -20,10 +20,9 @@ class DoorbellCallModel {
     fun addDoorbellCall(imageData: ImageData): Single<DoorbellCallViewEntity> {
         return storageModel
                 .uploadImage(imageData)
-                .map { uploadResult ->
+                .flatMap { uploadResult ->
                     dbModel.addDoorbellCallToDb(uploadResult)
                             .map { dbEntity: DoorbellCallDbEntity -> DoorbellCallViewEntity(dbEntity.uid, dbEntity.date, dbEntity.file, uploadResult.downloadUrl!!) }
-                            .blockingGet()
                 }
     }
 
@@ -36,7 +35,7 @@ class DoorbellCallModel {
         return dbModel.getDoorbellCalls(startAfter, pageSize)
                 .toObservable()
                 .flatMapIterable { it }
-                .map { convertDbToViewEntity(it).blockingGet() }
+                .flatMap { convertDbToViewEntity(it).toObservable() }
                 .collectInto(ArrayList(), { t1: ArrayList<DoorbellCallViewEntity>, t2: DoorbellCallViewEntity -> t1.add(t2) })
     }
 

@@ -16,7 +16,7 @@ import com.nsizintsev.doorbell.iot.peripheral.CameraManager
 import com.nsizintsev.doorbell.iot.peripheral.controller.DoorbellController
 import com.nsizintsev.doorbell.iot.ui.login.LoginActivity
 import com.nsizintsev.doorbell.iot.view.AutoFitSurfaceView
-import com.nsizintsev.doorbell.iot.viewmodel.UploadPictureViewModel
+import com.nsizintsev.doorbell.iot.viewmodel.AddDoorbellCallViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -24,15 +24,15 @@ class MainActivity : AppCompatActivity(), CameraManager.UiProvider, IPermissionM
 
     private val doorbellModel = DoorbellController(lifecycle, this, this, this)
 
-    private lateinit var uploadImageModel: UploadPictureViewModel
+    private lateinit var uploadImageModel: AddDoorbellCallViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
 
-        uploadImageModel = ViewModelProviders.of(this).get(UploadPictureViewModel::class.java)
-        uploadImageModel.uploadImageLiveData.observe(this, Observer<Boolean> { t ->
+        uploadImageModel = ViewModelProviders.of(this).get(AddDoorbellCallViewModel::class.java)
+        uploadImageModel.createRequestResult.observe(this, Observer<Boolean> { t ->
             if (t != null && t) {
                 Timber.d("Image uploaded")
             } else {
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), CameraManager.UiProvider, IPermissionM
 
         doorbellModel.photoLiveData.observe(this, Observer<ImageData> { t ->
             if (t != null) {
-                uploadImageModel.uploadImage(t)
+                uploadImageModel.addDoorbellCall(t)
             }
         })
 

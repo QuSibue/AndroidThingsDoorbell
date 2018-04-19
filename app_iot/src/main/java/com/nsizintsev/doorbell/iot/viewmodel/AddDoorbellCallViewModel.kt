@@ -12,22 +12,22 @@ import io.reactivex.schedulers.Schedulers
  * Created by nsizintsev on 3/9/2018.
  */
 
-class UploadPictureViewModel(application: Application) : AndroidViewModel(application) {
+class AddDoorbellCallViewModel(application: Application) : AndroidViewModel(application) {
 
-    val uploadImageLiveData = MutableLiveData<Boolean>()
+    val createRequestResult = MutableLiveData<Boolean>()
 
     private val uploadModel = DoorbellCallModel()
 
-    fun uploadImage(image: ImageData) {
+    fun addDoorbellCall(image: ImageData) {
         uploadModel.addDoorbellCall(image)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            uploadImageLiveData.postValue(true)
+                            createRequestResult.postValue(true)
                         },
                         {
-                            uploadImageLiveData.postValue(false)
+                            createRequestResult.postValue(false)
                         })
     }
 
